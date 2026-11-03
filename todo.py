@@ -1,20 +1,47 @@
-"""最简单的内存版 todo CLI，支持 add / list / done / delete。
+"""最简单的 todo CLI，支持 add / list / done / delete，数据保存在 todos.json。
 
 用法：
     python todo.py add "买牛奶"
     python todo.py list
     python todo.py done 1
     python todo.py delete 1
-    python todo.py            # 交互模式，所有命令共用同一份内存数据
+    python todo.py            # 交互模式，命令共用同一份数据
 """
 
+import json
 import sys
+from pathlib import Path
+
+DATA = Path(__file__).with_name("todos.json")
 
 todos: list[dict] = []
 
 
+def load() -> list[dict]:
+    """读取 todos.json；文件不存在或内容损坏时返回空列表。"""
+    try:
+        data = json.loads(DATA.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    if not isinstance(data, list):
+        return []
+    return [
+        {"text": str(item["text"]), "done": bool(item.get("done"))}
+        for item in data
+        if isinstance(item, dict) and item.get("text")
+    ]
+
+
+def save() -> None:
+    """先写临时文件再替换，中断时不会留下半个 todos.json。"""
+    tmp = DATA.with_name(DATA.name + ".tmp")
+    tmp.write_text(json.dumps(todos, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(DATA)
+
+
 def add(text: str) -> None:
     todos.append({"text": text, "done": False})
+    save()
     print(f"added: {text}")
 
 
@@ -40,6 +67,7 @@ def done(rest: list[str]) -> None:
         print("usage: done <number>")
         return
     todos[i]["done"] = True
+    save()
     print(f"done: {todos[i]['text']}")
 
 
@@ -49,6 +77,7 @@ def delete(rest: list[str]) -> None:
         print("usage: delete <number>")
         return
     print(f"deleted: {todos.pop(i)['text']}")
+    save()
 
 
 def run(command: str, rest: list[str]) -> None:
@@ -69,6 +98,7 @@ def run(command: str, rest: list[str]) -> None:
 
 
 def main() -> None:
+    todos.extend(load())
     args = sys.argv[1:]
     if args:
         run(args[0], args[1:])
