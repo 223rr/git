@@ -1,39 +1,45 @@
-# dsh-superagent
+# todo
 
-> **Research prototype for reference only, not an official DeepSeek product.** This code grew out of our team's day-to-day development work, with much of the engineering done by coding agents. Treat it as research code, not production-ready software. It may still contain bugs, and its coding style and engineering practices may be inconsistent. Review and adapt it before using it in your own environment.
->
-> We have adapted it for publication, so it is not identical to our internal version or the implementation described in *Exploring Super-agent Design: Towards a More Autonomous Agent System*. Some designs discussed in the article are directions for future development and are not implemented in this prototype.
+一个最简单的内存版命令行 todo 程序，只用 Python 标准库，无第三方依赖。
 
-dsh-superagent is a proactive coding agent for one GitHub repository, packaged as a bundle for [DeepSeek Harness](https://www.deepseek.com/en/harness/). It listens to GitHub and, optionally, Feishu. When someone allowed asks the agent for work, it opens a work item, works on it in its own agent session and directory, and answers in the original conversation, for example with a pull request. A web panel shows what needs a person.
+## 用法
 
-It is also a way of working with an agent: **take as little human attention as possible, and give as much value as possible.** An agent that can act for a whole team can also waste a whole team's attention, so it acts only when asked or when a rule the team wrote allows it, and speaks only when someone must act or can use a result. [docs/000-philosophy.md](docs/000-philosophy.md) explains the principle and what it asks of the operator.
+```bash
+py todo.py add "买牛奶"
+py todo.py list
+py todo.py done 1
+py todo.py delete 1
+```
 
-## Setup
+不带参数运行会进入交互模式，所有命令共用同一份内存数据：
 
-Setup has many steps, so an agent does it with you. Ask your coding agent:
+```text
+$ py todo.py
+todo> add 买牛奶
+added: 买牛奶
+todo> add 写代码
+added: 写代码
+todo> done 2
+done: 写代码
+todo> list
+1. [ ] 买牛奶
+2. [x] 写代码
+todo> quit
+```
 
-> Read SETUP.md in this repository and set up dsh-superagent with me.
+## 命令
 
-It asks one short question at a time, shows the full plan once, and then installs and configures everything. [SETUP.md](SETUP.md) is what it follows.
+| 命令 | 说明 |
+| --- | --- |
+| `add <文本>` | 新增一条待办 |
+| `list` | 列出全部待办，`[x]` 表示已完成 |
+| `done <编号>` | 把第 N 条标记为已完成 |
+| `delete <编号>` | 删除第 N 条 |
+| `quit` / `exit` | 退出交互模式（仅交互模式可用） |
 
-## Documentation
+编号从 1 开始，越界或非数字会提示 `usage`。
 
-Read the numbered documents in order; each builds only on the ones before it.
+## 说明
 
-- [000 Philosophy](docs/000-philosophy.md)
-- [001 Domain model](docs/001-domain.md)
-- [002 Authorization](docs/002-authorization.md)
-- [003 Execution](docs/003-execution.md)
-- [004 Prompts](docs/004-prompts.md)
-- [005 Panel](docs/005-panel.md)
-- [006 Deployment](docs/006-deployment.md): manual setup, configuration, upgrades and troubleshooting
-- [007 Architecture](docs/007-architecture.md)
-- [008 Cookbook](docs/008-cookbook.md): adding a Source
-
-## Development
-
-`pnpm check` runs the typecheck, the tests and the build.
-
-## License
-
-[MIT](LICENSE)
+- 数据只存在内存中，进程退出即清空。所以单独执行 `add` 后再执行 `list` 只会看到 `(empty)`；要在同一次运行里查看结果，请用交互模式。
+- 需要 Python 3.10+（注解中使用了 `int | None` 写法）。
