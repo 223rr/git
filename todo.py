@@ -99,6 +99,8 @@ def run(command: str, rest: list[str]) -> None:
 
 def main() -> None:
     todos.extend(load())
+    if len(sys.argv) == 1:
+        print("命令: add <文本> / list / done <编号> / delete <编号>，输入 quit 退出")
     args = sys.argv[1:]
     if args:
         run(args[0], args[1:])
