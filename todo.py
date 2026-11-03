@@ -98,6 +98,12 @@ def run(command: str, rest: list[str]) -> None:
 
 
 def main() -> None:
+    # 管道/重定向时按 UTF-8 处理：Windows 默认会用 cp936 解码，
+    # 遇到 UTF-8 字节会变成代理字符，写回文件时报错。
+    if sys.stdin and not sys.stdin.isatty():
+        sys.stdin.reconfigure(encoding="utf-8", errors="replace")
+    if sys.stdout and not sys.stdout.isatty():
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     todos.extend(load())
     if len(sys.argv) == 1:
         print("命令: add <文本> / list / done <编号> / delete <编号>，输入 quit 退出")
