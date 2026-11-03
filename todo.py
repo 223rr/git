@@ -33,7 +33,10 @@ def load() -> list[dict]:
 
 
 def save() -> None:
-    DATA.write_text(json.dumps(todos, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    """先写临时文件再替换，中断时不会留下半个 todos.json。"""
+    tmp = DATA.with_name(DATA.name + ".tmp")
+    tmp.write_text(json.dumps(todos, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(DATA)
 
 
 def add(text: str) -> None:
