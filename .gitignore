@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+todos.json
+todos.json.tmp
+node_modules/
