@@ -31,13 +31,11 @@ py cheat.py setup-adb
 # 1. 查看当前数值
 py cheat.py inspect backup.zip
 
-# 2. 生成修改后的备份（默认全满：金钱 999999999、属性 9999）
+# 2. 生成修改后的备份（默认把金币改为 999999999）
 py cheat.py patch backup.zip -o patched.zip
 
-# 自定义
-py cheat.py patch backup.zip -o patched.zip --money 99999999 --attrs 5000
-py cheat.py patch backup.zip -o patched.zip --set "Year=1" --set "Cham=5000"
-py cheat.py patch backup.zip -o patched.zip --no-defaults --set "Money=100000"
+# 自定义金额
+py cheat.py patch backup.zip -o patched.zip --money 99999999
 
 # 3. 推送到手机并打开恢复页面
 py cheat.py push patched.zip --open
@@ -50,10 +48,11 @@ py cheat.py apply backup.zip --money 999999999
 
 ## 支持的字段
 
-默认会改：`Money` `MyBalance` `Coding` `Art` `Music` `Action` `Cham` `BasicCham`
-`Healthy` `Plan` `Fans` `MaxCoding` `MaxArt` `MaxMusic` `MaxAction` `MaxPlan`
+默认只改金币 `Money`。如需改其他字段，用 `--set` 手动指定（先 `inspect` 看有哪些）：
 
-`--attrs N` 同时设置 `Coding/Art/Music/Action/Cham/BasicCham/Healthy/Plan/Fans`。
+```powershell
+py cheat.py patch backup.zip -o patched.zip --no-defaults --set "Coding=9999" --set "Cham=5000"
+```
 
 ## 注意
 

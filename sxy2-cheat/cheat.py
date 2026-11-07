@@ -32,27 +32,12 @@ ANDROID_BACKUP_MARK = b"ANDROID BACKUP\n"
 BACKUP_DIR = "/sdcard/MIUI/backup/AllBackup"
 MIRROR = "https://mirrors.cloud.tencent.com/AndroidSDK/platform-tools-latest-windows.zip"
 
-# 默认「全满」配置
+# 默认只改金币
 DEFAULT_CHANGES = {
     "Money": "999999999",
-    "MyBalance": "999999999",
-    "Coding": "9999",
-    "Art": "9999",
-    "Music": "9999",
-    "Action": "9999",
-    "Cham": "9999",
-    "BasicCham": "9999",
-    "Healthy": "100",
-    "Plan": "9999",
-    "Fans": "9999",
-    "MaxCoding": "9999",
-    "MaxArt": "9999",
-    "MaxMusic": "9999",
-    "MaxAction": "9999",
-    "MaxPlan": "9999",
 }
 
-ATTR_KEYS = ["Coding", "Art", "Music", "Action", "Cham", "BasicCham", "Healthy", "Plan", "Fans"]
+MONEY_KEYS = ["Money"]
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -272,10 +257,6 @@ def cmd_patch(args):
     changes = dict(DEFAULT_CHANGES) if not args.no_defaults else {}
     if args.money is not None:
         changes["Money"] = str(args.money)
-        changes["MyBalance"] = str(args.money)
-    if args.attrs is not None:
-        for k in ATTR_KEYS:
-            changes[k] = str(args.attrs)
     for kv in args.set or []:
         if "=" not in kv:
             die("--set 格式应为 KEY=VALUE: " + kv)
@@ -330,7 +311,7 @@ def cmd_apply(args):
     ensure_device(adb)
     tmp = os.path.join(os.path.dirname(os.path.abspath(args.backup)), "_apply.zip")
     ns = argparse.Namespace(backup=args.backup, output=tmp, money=args.money,
-                            attrs=args.attrs, set=args.set, no_defaults=args.no_defaults)
+                            set=args.set, no_defaults=args.no_defaults)
     cmd_patch(ns)
     ts = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     remote = f"{BACKUP_DIR}/{ts}.zip"
@@ -356,9 +337,8 @@ def main(argv=None):
     p.add_argument("backup")
     p.add_argument("-o", "--output", required=True)
     p.add_argument("--money", type=int)
-    p.add_argument("--attrs", type=int)
     p.add_argument("--set", action="append")
-    p.add_argument("--no-defaults", action="store_true", help="不套用默认全满配置")
+    p.add_argument("--no-defaults", action="store_true", help="不套用默认金币配置")
     p.set_defaults(func=cmd_patch)
 
     p = sub.add_parser("push", help="把改好的 zip 推到手机")
@@ -370,7 +350,6 @@ def main(argv=None):
     p = sub.add_parser("apply", help="patch + push + 打开恢复页面 一条龙")
     p.add_argument("backup")
     p.add_argument("--money", type=int)
-    p.add_argument("--attrs", type=int)
     p.add_argument("--set", action="append")
     p.add_argument("--no-defaults", action="store_true")
     p.add_argument("--adb")
