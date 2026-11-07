@@ -1,0 +1,9 @@
+# 依赖与产物
+tools/
+backups/
+__pycache__/
+*.pyc
+
+# 备份包
+*.zip
+*.bak
